@@ -8,20 +8,23 @@
         <div class="card-header">
             <h5>Input Addendum</h5>
         </div>
-        <div class="card-body">
-            <form action="{{ route('admin.documents.addendum.store') }}" method="POST" enctype="multipart/form-data">
-                @csrf
-                <div class="mb-3">
-                    <label for="TANGGAL" class="form-label">Tanggal Addendum</label>
-                    <input type="date" class="form-control @error('TANGGAL') is-invalid @enderror" name="TANGGAL" value="{{ old('TANGGAL', date('Y-m-d')) }}" required>
-                    @error('TANGGAL') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                </div>
+        @csrf
+        <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="TANGGAL" class="form-label">Tanggal Addendum</label>
+                        <input type="date" class="form-control @error('TANGGAL') is-invalid @enderror" name="TANGGAL" value="{{ old('TANGGAL', date('Y-m-d')) }}" max="{{ date('Y-m-d') }}" required>
+                        @error('TANGGAL') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="DIR" class="form-label">Jenis Addendum</label>
+                        <select class="form-select @error('DIR') is-invalid @enderror" name="DIR" required>
+                            <option value="">-- Pilih Jenis --</option>
+                            <option value="DIR" {{ old('DIR') == 'DIR' ? 'selected' : '' }}>DIR</option>
+                            <option value="NON DIR" {{ old('DIR') == 'NON DIR' ? 'selected' : '' }}>Non DIR</option>
+                        </select>
+                        @error('DIR') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
 
-                <div class="mb-3">
-                    <label for="NOMOR_PERJANJIAN_ASAL" class="form-label">Nomor Perjanjian Asal</label>
-                    <input type="text" class="form-control @error('NOMOR_PERJANJIAN_ASAL') is-invalid @enderror" name="NOMOR_PERJANJIAN_ASAL" value="{{ old('NOMOR_PERJANJIAN_ASAL') }}" required>
-                    @error('NOMOR_PERJANJIAN_ASAL') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                </div>
 
                 <div class="mb-3">
                     <label for="PIHAK_PERTAMA" class="form-label">Pihak Pertama</label>
@@ -41,11 +44,6 @@
                     @error('PERIHAL') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
 
-                <div class="mb-3">
-                    <label for="PERUBAHAN" class="form-label">Perubahan</label>
-                    <textarea class="form-control @error('PERUBAHAN') is-invalid @enderror" name="PERUBAHAN" rows="2" required>{{ old('PERUBAHAN') }}</textarea>
-                    @error('PERUBAHAN') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                </div>
 
                 <div class="mb-3">
                     <label for="PENANDATANGAN" class="form-label">Penandatangan</label>

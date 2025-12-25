@@ -20,45 +20,42 @@
     </div>
 
     <!-- Statistik Ringkas -->
-    <div class="row mb-4">
         <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card text-center home-card">
+            <div class="card text-center home-card border-info">
                 <div class="card-body">
-                    <h3><i class="bi bi-file-text text-primary"></i></h3>
-                    <h4>{{ $skCount }}</h4>
-                    <p class="card-text">Surat Keputusan</p>
+                    <h3><i class="bi bi-exclamation-triangle text-info"></i></h3>
+                    <h4>{{ $pendingUsed }} / {{ $pendingLimit }}</h4>
+                    <p class="card-text">Input Pending (SK/SP/Addendum)</p>
+                    <div class="small text-muted">Sisa slot input: <b>{{ $pendingSisa }}</b></div>
+                    <hr class="my-2">
+                    <div class="row small">
+                        <div class="col-4">
+                            <div>SK</div>
+                            <span class="badge bg-warning">{{ $pendingSK }}</span>
+                            <span class="badge bg-success">{{ $approvedSK }}</span>
+                            <span class="badge bg-danger">{{ $rejectedSK }}</span>
+                        </div>
+                        <div class="col-4">
+                            <div>SP</div>
+                            <span class="badge bg-warning">{{ $pendingSP }}</span>
+                            <span class="badge bg-success">{{ $approvedSP }}</span>
+                            <span class="badge bg-danger">{{ $rejectedSP }}</span>
+                        </div>
+                        <div class="col-4">
+                            <div>Add</div>
+                            <span class="badge bg-warning">{{ $pendingAdd }}</span>
+                            <span class="badge bg-success">{{ $approvedAdd }}</span>
+                            <span class="badge bg-danger">{{ $rejectedAdd }}</span>
+                        </div>
+                    </div>
+                    <div class="row small mt-1">
+                        <div class="col-4">Pending</div>
+                        <div class="col-4">Approved</div>
+                        <div class="col-4">Rejected</div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card text-center home-card">
-                <div class="card-body">
-                    <h3><i class="bi bi-file-earmark-text text-success"></i></h3>
-                    <h4>{{ $spCount }}</h4>
-                    <p class="card-text">Surat Perjanjian</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card text-center home-card">
-                <div class="card-body">
-                    <h3><i class="bi bi-file-plus text-info"></i></h3>
-                    <h4>{{ $addendumCount }}</h4>
-                    <p class="card-text">Addendum</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card text-center home-card">
-                <div class="card-body">
-                    <h3><i class="bi bi-files text-warning"></i></h3>
-                    <h4>{{ $skCount + $spCount + $addendumCount }}</h4>
-                    <p class="card-text">Total Dokumen</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Status Approval dan Notifikasi -->
     <div class="row mb-4">
         <!-- Status Approval -->

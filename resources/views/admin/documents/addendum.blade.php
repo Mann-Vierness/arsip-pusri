@@ -87,11 +87,14 @@
                                 </td>
                                 <td>
                                     <div class="btn-group btn-group-sm">
-                                        <a href="{{ route('admin.documents.addendum.show', $doc->id) }}" class="btn btn-info" title="Lihat">
+                                        <a href="{{ route('admin.approval.show', ['addendum', $doc->id]) }}" class="btn btn-info" title="Lihat/Approval">
                                             <i class="bi bi-eye"></i>
                                         </a>
                                         @if($doc->pdf_path)
-                                        <a href="{{ route('admin.documents.addendum.download', $doc->id) }}" class="btn btn-success" title="Download">
+                                        <a href="{{ route('admin.approval.view-pdf', ['addendum', $doc->id]) }}" class="btn btn-warning" title="View PDF" target="_blank">
+                                            <i class="bi bi-file-earmark-pdf"></i>
+                                        </a>
+                                        <a href="{{ route('admin.approval.download', ['addendum', $doc->id]) }}" class="btn btn-success" title="Download">
                                             <i class="bi bi-download"></i>
                                         </a>
                                         @endif

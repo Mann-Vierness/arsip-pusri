@@ -63,14 +63,21 @@ class SuratAddendumController extends Controller
 
     public function store(Request $request)
     {
+        // Batasi input jika pending sudah maksimal
+        $maxPending = config('surat.max_user_pending_documents', 10);
+        $pendingCount = SuratAddendum::where('USER', Auth::user()->BADGE)
+            ->where('approval_status', 'pending')->count();
+        if ($pendingCount >= $maxPending) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Maksimal input Addendum (pending) sudah tercapai. Silakan tunggu persetujuan admin atau hubungi admin untuk menambah batas.');
+        }
         $request->validate([
-            'TANGGAL' => 'required|date',
-            'DIR' => 'nullable|string|max:50',
-            'NOMOR_PERJANJIAN_ASAL' => 'required|string|max:100',
+            'TANGGAL' => ($request->DIR === 'NON DIR') ? 'required|date|before_or_equal:today' : 'required|date',
+            'DIR' => 'required|string|in:DIR,NON DIR',
             'PIHAK_PERTAMA' => 'required|string|max:200',
             'PIHAK_LAIN' => 'required|string|max:200',
             'PERIHAL' => 'required|string|max:500',
-            'PERUBAHAN' => 'required|string',
             'PENANDATANGAN' => 'required|string|max:100',
             'UNIT_KERJA' => 'required|string|max:100',
             'NAMA' => 'required|string|max:100',
@@ -89,12 +96,10 @@ class SuratAddendumController extends Controller
 
             $document = SuratAddendum::create([
                 'NO' => $nomorAddendum,
-                'NOMOR_PERJANJIAN_ASAL' => $request->NOMOR_PERJANJIAN_ASAL,
                 'TANGGAL' => $request->TANGGAL,
                 'PIHAK_PERTAMA' => $request->PIHAK_PERTAMA,
                 'PIHAK_LAIN' => $request->PIHAK_LAIN,
                 'PERIHAL' => $request->PERIHAL,
-                'PERUBAHAN' => $request->PERUBAHAN,
                 'PENANDATANGAN' => $request->PENANDATANGAN,
                 'UNIT_KERJA' => $request->UNIT_KERJA,
                 'NAMA' => $request->NAMA,
@@ -148,6 +153,7 @@ class SuratAddendumController extends Controller
             return redirect()->route('user.addendum.index')
                 ->with('error', 'Dokumen yang sudah disetujui tidak dapat diubah');
         }
+        // Boleh edit jika status rejected
 
         return view('user.addendum.edit', compact('document'));
     }
@@ -166,11 +172,9 @@ class SuratAddendumController extends Controller
         }
 
         $request->validate([
-            'NOMOR_PERJANJIAN_ASAL' => 'required|string|max:100',
             'PIHAK_PERTAMA' => 'required|string|max:200',
             'PIHAK_LAIN' => 'required|string|max:200',
             'PERIHAL' => 'required|string|max:500',
-            'PERUBAHAN' => 'required|string',
             'PENANDATANGAN' => 'required|string|max:100',
             'UNIT_KERJA' => 'required|string|max:100',
             'NAMA' => 'required|string|max:100',
@@ -179,11 +183,9 @@ class SuratAddendumController extends Controller
 
         try {
             $data = [
-                'NOMOR_PERJANJIAN_ASAL' => $request->NOMOR_PERJANJIAN_ASAL,
                 'PIHAK_PERTAMA' => $request->PIHAK_PERTAMA,
                 'PIHAK_LAIN' => $request->PIHAK_LAIN,
                 'PERIHAL' => $request->PERIHAL,
-                'PERUBAHAN' => $request->PERUBAHAN,
                 'PENANDATANGAN' => $request->PENANDATANGAN,
                 'UNIT_KERJA' => $request->UNIT_KERJA,
                 'NAMA' => $request->NAMA,

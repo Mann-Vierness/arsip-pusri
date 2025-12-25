@@ -70,6 +70,9 @@
                 </div>
                 <div class="card-body">
                     @if($document->pdf_path)
+                    <a href="{{ route('admin.approval.view-pdf', [$type, $document->id]) }}" class="btn btn-warning btn-sm w-100 mb-2" target="_blank">
+                        <i class="bi bi-file-earmark-pdf"></i> View PDF
+                    </a>
                     <a href="{{ route('admin.approval.download', [$type, $document->id]) }}" class="btn btn-success btn-sm w-100 mb-2">
                         <i class="bi bi-download"></i> Download PDF
                     </a>

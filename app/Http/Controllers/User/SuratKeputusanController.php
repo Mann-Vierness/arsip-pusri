@@ -117,7 +117,7 @@ class SuratKeputusanController extends Controller
                     $admin->BADGE,
                     'Surat Keputusan',
                     $nomorSK,
-                    Auth::user()->badge
+                    Auth::user()->BADGE
                 );
             }
 
@@ -156,6 +156,7 @@ class SuratKeputusanController extends Controller
             return redirect()->route('user.sk.index')
                 ->with('error', 'Dokumen yang sudah disetujui tidak dapat diubah');
         }
+        // Boleh edit jika status rejected
 
         return view('user.sk.edit', compact('document'));
     }

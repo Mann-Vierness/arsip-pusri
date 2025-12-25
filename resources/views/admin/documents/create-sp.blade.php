@@ -7,14 +7,22 @@
     <div class="card">
         <div class="card-header">
             <h5>Input Surat Perjanjian</h5>
-        </div>
-        <div class="card-body">
-            <form action="{{ route('admin.documents.sp.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
-                <div class="mb-3">
-                    <label for="TANGGAL" class="form-label">Tanggal SP</label>
-                    <input type="date" class="form-control @error('TANGGAL') is-invalid @enderror" name="TANGGAL" value="{{ old('TANGGAL', date('Y-m-d')) }}" required>
-                    @error('TANGGAL') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                   <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="TANGGAL" class="form-label">Tanggal Surat Perjanjian</label>
+                        <input type="date" class="form-control @error('TANGGAL') is-invalid @enderror" name="TANGGAL" value="{{ old('TANGGAL', date('Y-m-d')) }}" max="{{ date('Y-m-d') }}" required>
+                        @error('TANGGAL') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="DIR" class="form-label">Jenis Surat Perjanjian</label>
+                        <select class="form-select @error('DIR') is-invalid @enderror" name="DIR" required>
+                            <option value="">-- Pilih Jenis --</option>
+                            <option value="DIR" {{ old('DIR') == 'DIR' ? 'selected' : '' }}>DIR</option>
+                            <option value="NON DIR" {{ old('DIR') == 'NON DIR' ? 'selected' : '' }}>Non DIR</option>
+                        </select>
+                        @error('DIR') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
                 </div>
 
                 <div class="mb-3">

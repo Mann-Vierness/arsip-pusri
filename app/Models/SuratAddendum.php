@@ -18,7 +18,6 @@ class SuratAddendum extends Model
         'PIHAK_PERTAMA',
         'PIHAK_LAIN',
         'PERIHAL',
-        'PERUBAHAN',
         'PENANDATANGAN',
         'UNIT_KERJA',
         'NAMA',

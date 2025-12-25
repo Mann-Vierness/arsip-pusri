@@ -138,16 +138,26 @@ class DocumentNumberService
         $tahun = $tanggalObj->format('Y');
         $isToday = $tanggalObj->isToday();
 
-        // Tentukan model dan prefix
+        // Tentukan model dan format nomor sesuai permintaan
         if ($jenis === 'sp') {
             $model = SuratPerjanjian::class;
-            $prefix = $dir ? '-' : '-';
-            $suffix_format = $dir ? '/SP/DIR' : '/SP';
+            $format = ($dir === 'DIR') ? '{NOMOR}/SP/DIR/{TAHUN}' : '{NOMOR}/SP/{TAHUN}';
         } else {
             $model = SuratAddendum::class;
-            $prefix = $dir ? '-' : '-';
-            $suffix_format = $dir ? '/ADD-DIR' : '/ADD';
+            $format = ($dir === 'DIR') ? '{NOMOR}/ADD-SP/DIR/{TAHUN}' : '{NOMOR}/ADD-SP/{TAHUN}';
         }
+
+        $field = 'NO';
+
+        // Ambil semua data tahun ini (SP & Addendum) untuk urutan global
+        if ($jenis === 'sp') {
+            $allGlobal = SuratPerjanjian::withTrashed()->whereYear('TANGGAL', $tahun)->get();
+        } else {
+            $allGlobal = SuratAddendum::withTrashed()->whereYear('TANGGAL', $tahun)->get();
+        }
+        $allGlobal = $allGlobal->sortBy(function($item) {
+            return [$item->TANGGAL, $item->NO];
+        });
 
         $field = 'NO';
 
@@ -164,71 +174,30 @@ class DocumentNumberService
             return $num;
         }
 
-        // 2. Ambil semua data tahun ini (non-deleted + deleted untuk referensi)
-        $allRecords = $model::withTrashed()
-            ->whereYear('TANGGAL', $tahun)
-            ->orderBy('TANGGAL', 'desc')
-            ->orderBy($field, 'desc')
-            ->get();
-
-        if ($allRecords->isEmpty()) {
-            // Tidak ada data tahun ini, mulai dari 1
+        // 2. Penomoran global: cari nomor terakhir di tahun ini
+        if ($allGlobal->isEmpty()) {
             $nomor = $this->formatNomor(1, '');
-            return "{$prefix}{$nomor}{$suffix_format}/{$tahun}";
+            return str_replace(['{NOMOR}', '{TAHUN}'], [$nomor, $tahun], $format);
         }
 
-        // 3. Cari anchor: nomor terakhir yang tanggalnya <= tanggal input
+        // Cari anchor: nomor terakhir yang tanggalnya <= tanggal input
         $anchor = null;
-        foreach ($allRecords as $record) {
+        foreach ($allGlobal as $record) {
             if ($record->TANGGAL <= $tanggalObj) {
                 $anchor = $record;
-                break;
             }
         }
 
         if (!$anchor) {
-            // Semua data lebih baru dari tanggal input (backdate jauh)
             $angka = 1;
             $suffix = 'A';
         } else {
             [$angka, $suffix] = $this->parseNomor($anchor->$field);
-            $angka = (int)$angka;
+            $angka = (int)$angka + 1;
         }
 
-        // 4. Jika hari ini, cari suffix berikutnya untuk angka ini di hari ini
-        if ($isToday) {
-            // Cari semua suffix yang sudah dipakai untuk angka ini di hari ini
-            $todayPattern = $this->formatNomor($angka, '');
-            $usedSuffixes = $allRecords
-                ->filter(fn($r) => Carbon::parse($r->TANGGAL)->isToday() && 
-                         preg_match('/^' . preg_quote($todayPattern, '/') . '([A-Z]*)$/', $r->$field))
-                ->map(function($r) use ($todayPattern) {
-                    if (preg_match('/^' . preg_quote($todayPattern, '/') . '([A-Z]*)$/', $r->$field, $m)) {
-                        return $m[1] ?? '';
-                    }
-                    return '';
-                })
-                ->unique()
-                ->values()
-                ->toArray();
-
-            // Tentukan suffix baru
-            if (empty($usedSuffixes) || !in_array('', $usedSuffixes)) {
-                $nextSuffix = '';
-            } else {
-                $lastSuffix = array_reduce($usedSuffixes, function($carry, $item) {
-                    return $item > $carry ? $item : $carry;
-                }, '');
-                $nextSuffix = $this->incrementLetter($lastSuffix);
-            }
-
-            $nomor = $this->formatNomor($angka, $nextSuffix);
-        } else {
-            // Backdate: gunakan suffix dari anchor
-            $nomor = $this->formatNomor($angka, $suffix);
-        }
-
-        return "{$prefix}{$nomor}{$suffix_format}/{$tahun}";
+        $nomor = $this->formatNomor($angka, '');
+        return str_replace(['{NOMOR}', '{TAHUN}'], [$nomor, $tahun], $format);
     }
 
     /**

@@ -13,7 +13,7 @@
                 @csrf
                 <div class="mb-3">
                     <label for="TANGGAL" class="form-label">Tanggal SK</label>
-                    <input type="date" class="form-control @error('TANGGAL') is-invalid @enderror" name="TANGGAL" value="{{ old('TANGGAL', date('Y-m-d')) }}" required>
+                    <input type="date" class="form-control @error('TANGGAL') is-invalid @enderror" name="TANGGAL" value="{{ date('Y-m-d') }}" min="{{ date('Y-m-d') }}" max="{{ date('Y-m-d') }}" readonly required>
                     @error('TANGGAL') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
 
@@ -36,8 +36,8 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="NAMA" class="form-label">Nama Dokumen</label>
-                    <input type="text" class="form-control @error('NAMA') is-invalid @enderror" name="NAMA" value="{{ old('NAMA') }}" required>
+                    <label for="NAMA" class="form-label">Nama Penginput</label>
+                    <input type="text" class="form-control @error('NAMA') is-invalid @enderror" name="NAMA" value="{{ old('NAMA', Auth::user()->Nama) }}" required>
                     @error('NAMA') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
 

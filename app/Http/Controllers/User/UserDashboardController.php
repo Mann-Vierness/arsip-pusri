@@ -104,6 +104,24 @@ class UserDashboardController extends Controller
         $recentNotifications = $this->notificationService->getNotifications($badge, 5);
         $unreadCount = $this->notificationService->getUnreadCount($badge);
 
+        // Info batas maksimal input
+
+        $maxPending = config('surat.max_user_pending_documents', 10);
+        $pendingSK = SuratKeputusan::byUser($badge)->where('approval_status', 'pending')->count();
+        $pendingSP = SuratPerjanjian::byUser($badge)->where('approval_status', 'pending')->count();
+        $pendingAdd = SuratAddendum::byUser($badge)->where('approval_status', 'pending')->count();
+        $pendingLimit = $maxPending;
+        $pendingUsed = $pendingSK + $pendingSP + $pendingAdd;
+        $pendingSisa = max(0, $pendingLimit - $pendingUsed);
+
+        $approvedSK = SuratKeputusan::byUser($badge)->where('approval_status', 'approved')->count();
+        $approvedSP = SuratPerjanjian::byUser($badge)->where('approval_status', 'approved')->count();
+        $approvedAdd = SuratAddendum::byUser($badge)->where('approval_status', 'approved')->count();
+
+        $rejectedSK = SuratKeputusan::byUser($badge)->where('approval_status', 'rejected')->count();
+        $rejectedSP = SuratPerjanjian::byUser($badge)->where('approval_status', 'rejected')->count();
+        $rejectedAdd = SuratAddendum::byUser($badge)->where('approval_status', 'rejected')->count();
+
         return view('user.dashboard', compact(
             'user',
             'skCount',
@@ -114,7 +132,13 @@ class UserDashboardController extends Controller
             'rejectedCount',
             'recentDocs',
             'recentNotifications',
-            'unreadCount'
+            'unreadCount',
+            'pendingLimit',
+            'pendingUsed',
+            'pendingSisa',
+            'pendingSK', 'pendingSP', 'pendingAdd',
+            'approvedSK', 'approvedSP', 'approvedAdd',
+            'rejectedSK', 'rejectedSP', 'rejectedAdd'
         ));
     }
 }

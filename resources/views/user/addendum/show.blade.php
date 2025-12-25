@@ -79,6 +79,25 @@
                     <a href="{{ route('user.addendum.download', $document->id) }}" class="btn btn-success btn-sm w-100 mb-2">
                         <i class="bi bi-download"></i> Download PDF
                     </a>
+                    <button class="btn btn-info btn-sm w-100 mb-2" type="button" onclick="togglePdfViewer('pdf-viewer-addendum')">
+                        <i class="bi bi-eye"></i> Lihat PDF
+                    </button>
+                    <div id="pdf-viewer-addendum" style="display:none;">
+                        @php
+                            $pdfUrl = route('user.addendum.download', $document->id) . '?view=1';
+                        @endphp
+                        @include('user.partials.pdf-viewer', ['pdfUrl' => $pdfUrl])
+                    </div>
+                    <script>
+                    function togglePdfViewer(id) {
+                        var el = document.getElementById(id);
+                        if (el.style.display === 'none') {
+                            el.style.display = 'block';
+                        } else {
+                            el.style.display = 'none';
+                        }
+                    }
+                    </script>
                     @endif
 
                     @if($document->isPending())

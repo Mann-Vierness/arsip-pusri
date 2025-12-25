@@ -21,8 +21,8 @@ class NotificationController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $notifications = $this->notificationService->getNotifications($user->badge);
-        $unreadCount = $this->notificationService->getUnreadCount($user->badge);
+        $notifications = $this->notificationService->getNotifications($user->BADGE);
+        $unreadCount = $this->notificationService->getUnreadCount($user->BADGE);
 
         return view('user.notifications', compact('notifications', 'unreadCount'));
     }
@@ -37,7 +37,7 @@ class NotificationController extends Controller
     public function markAllAsRead()
     {
         $user = Auth::user();
-        $this->notificationService->markAllAsRead($user->badge);
+        $this->notificationService->markAllAsRead($user->BADGE);
 
         return redirect()->back()->with('success', 'Semua notifikasi telah ditandai sebagai dibaca');
     }

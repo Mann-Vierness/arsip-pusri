@@ -91,6 +91,9 @@
                                             <i class="bi bi-eye"></i>
                                         </a>
                                         @if($doc->pdf_path)
+                                        <a href="{{ route('admin.approval.view-pdf', ['sp', $doc->id]) }}" class="btn btn-warning" title="View PDF" target="_blank">
+                                            <i class="bi bi-file-earmark-pdf"></i>
+                                        </a>
                                         <a href="{{ route('admin.documents.sp.download', $doc->id) }}" class="btn btn-success" title="Download">
                                             <i class="bi bi-download"></i>
                                         </a>

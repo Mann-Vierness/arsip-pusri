@@ -65,6 +65,28 @@
                         pada {{ $document->approved_at->format('d/m/Y H:i') }}
                     </div>
                     @endif
+
+                    @if($document->pdf_path)
+                        @php
+                            $pdfUrl = route('user.sk.download', $document->id) . '?view=1';
+                        @endphp
+                        <button class="btn btn-info btn-sm mb-2" type="button" onclick="togglePdfViewer('pdf-viewer-sk')">
+                            <i class="bi bi-eye"></i> Lihat PDF
+                        </button>
+                        <div id="pdf-viewer-sk" style="display:none;">
+                            @include('user.partials.pdf-viewer', ['pdfUrl' => $pdfUrl])
+                        </div>
+                        <script>
+                        function togglePdfViewer(id) {
+                            var el = document.getElementById(id);
+                            if (el.style.display === 'none') {
+                                el.style.display = 'block';
+                            } else {
+                                el.style.display = 'none';
+                            }
+                        }
+                        </script>
+                    @endif
                 </div>
             </div>
         </div>

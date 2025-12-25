@@ -7,10 +7,10 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2><i class="bi bi-file-text"></i> Surat Perjanjian</h2>
         <div>
-            <a href="{{ route('sp.export') }}" class="btn btn-success me-2" target="_blank">
+            <a href="{{ route('user.sp.export') }}" class="btn btn-success me-2" target="_blank">
                 <i class="bi bi-download"></i> Export CSV
             </a>
-            <a href="{{ route('sp.create') }}" class="btn btn-primary">
+            <a href="{{ route('user.sp.create') }}" class="btn btn-primary">
                 <i class="bi bi-plus-circle"></i> Tambah SP
             </a>
         </div>
@@ -33,18 +33,18 @@
                 <div class="col-md-3">
                     <label for="sort" class="form-label">Urutkan Nomor</label>
                     <div class="btn-group w-100" role="group">
-                        <a href="{{ route('sp.index', array_merge(request()->query(), ['sort' => 'asc'])) }}" 
+                        <a href="{{ route('user.sp.index', array_merge(request()->query(), ['sort' => 'asc'])) }}" 
                            class="btn btn-outline-secondary {{ request('sort') === 'asc' ? 'active' : '' }}">
                             <i class="bi bi-arrow-up"></i> ASC
                         </a>
-                        <a href="{{ route('sp.index', array_merge(request()->query(), ['sort' => 'desc'])) }}" 
+                        <a href="{{ route('user.sp.index', array_merge(request()->query(), ['sort' => 'desc'])) }}" 
                            class="btn btn-outline-secondary {{ request('sort') === 'desc' || !request('sort') ? 'active' : '' }}">
                             <i class="bi bi-arrow-down"></i> DESC
                         </a>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <a href="{{ route('sp.index') }}" class="btn btn-warning w-100">
+                    <a href="{{ route('user.sp.index') }}" class="btn btn-warning w-100">
                         <i class="bi bi-arrow-clockwise"></i> Reset
                     </a>
                 </div>
@@ -85,19 +85,19 @@
                                 </td>
                                 <td>
                                     <div class="btn-group btn-group-sm">
-                                        <a href="{{ route('sp.show', $doc->id) }}" class="btn btn-info" title="Lihat Detail">
+                                        <a href="{{ route('user.sp.show', $doc->id) }}" class="btn btn-info" title="Lihat Detail">
                                             <i class="bi bi-eye"></i>
                                         </a>
                                         @if($doc->pdf_path)
-                                        <a href="{{ route('sp.download', $doc->id) }}" class="btn btn-success" title="Download PDF">
+                                        <a href="{{ route('user.sp.download', $doc->id) }}" class="btn btn-success" title="Download PDF">
                                             <i class="bi bi-download"></i>
                                         </a>
                                         @endif
                                         @if($doc->isPending())
-                                        <a href="{{ route('sp.edit', $doc->id) }}" class="btn btn-warning" title="Edit">
+                                        <a href="{{ route('user.sp.edit', $doc->id) }}" class="btn btn-warning" title="Edit">
                                             <i class="bi bi-pencil"></i>
                                         </a>
-                                        <form action="{{ route('sp.destroy', $doc->id) }}" method="POST" 
+                                        <form action="{{ route('user.sp.destroy', $doc->id) }}" method="POST" 
                                               class="d-inline" onsubmit="return confirm('Yakin ingin menghapus?')">
                                             @csrf
                                             @method('DELETE')
