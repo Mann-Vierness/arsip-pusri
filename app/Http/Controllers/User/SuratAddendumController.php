@@ -1,0 +1,273 @@
+<?php
+
+namespace App\Http\Controllers\User;
+
+use App\Http\Controllers\Controller;
+use App\Models\SuratAddendum;
+use App\Models\User;
+use App\Models\UserLog;
+use App\Services\DocumentNumberService;
+use App\Services\NotificationService;
+use App\Services\CsvExportService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+
+class SuratAddendumController extends Controller
+{
+    protected $documentNumberService;
+    protected $notificationService;
+    protected $csvExportService;
+
+    public function __construct(
+        DocumentNumberService $documentNumberService, 
+        NotificationService $notificationService,
+        CsvExportService $csvExportService
+    )
+    {
+        $this->middleware('auth');
+        $this->middleware('role:user');
+        $this->documentNumberService = $documentNumberService;
+        $this->notificationService = $notificationService;
+        $this->csvExportService = $csvExportService;
+    }
+
+    public function index(Request $request)
+    {
+        $user = Auth::user();
+        $query = SuratAddendum::byUser($user->BADGE);
+
+        // Search functionality
+        if ($request->has('search') && $request->search) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('NO', 'like', "%{$search}%")
+                  ->orWhere('PERIHAL', 'like', "%{$search}%");
+            });
+        }
+
+        // Sort functionality
+        $sort = $request->get('sort', 'desc');
+        $query->orderBy('NO', strtoupper($sort))
+              ->orderBy('TANGGAL', strtoupper($sort));
+
+        $documents = $query->paginate(20);
+
+        return view('user.addendum.index', compact('documents'));
+    }
+
+    public function create()
+    {
+        return view('user.addendum.create');
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'TANGGAL' => 'required|date',
+            'DIR' => 'nullable|string|max:50',
+            'NOMOR_PERJANJIAN_ASAL' => 'required|string|max:100',
+            'PIHAK_PERTAMA' => 'required|string|max:200',
+            'PIHAK_LAIN' => 'required|string|max:200',
+            'PERIHAL' => 'required|string|max:500',
+            'PERUBAHAN' => 'required|string',
+            'PENANDATANGAN' => 'required|string|max:100',
+            'UNIT_KERJA' => 'required|string|max:100',
+            'NAMA' => 'required|string|max:100',
+            'pdf_file' => 'required|file|mimes:pdf|max:20480',
+        ]);
+
+        try {
+            $nomorAddendum = $this->documentNumberService->generateAddendumNumber($request->TANGGAL, $request->DIR);
+
+            $pdfPath = null;
+            if ($request->hasFile('pdf_file')) {
+                $file = $request->file('pdf_file');
+                $fileName = 'ADD_' . str_replace(['/', ' '], '_', $nomorAddendum) . '_' . time() . '.pdf';
+                $pdfPath = Storage::disk('minio')->putFileAs('surat-addendum', $file, $fileName);
+            }
+
+            $document = SuratAddendum::create([
+                'NO' => $nomorAddendum,
+                'NOMOR_PERJANJIAN_ASAL' => $request->NOMOR_PERJANJIAN_ASAL,
+                'TANGGAL' => $request->TANGGAL,
+                'PIHAK_PERTAMA' => $request->PIHAK_PERTAMA,
+                'PIHAK_LAIN' => $request->PIHAK_LAIN,
+                'PERIHAL' => $request->PERIHAL,
+                'PERUBAHAN' => $request->PERUBAHAN,
+                'PENANDATANGAN' => $request->PENANDATANGAN,
+                'UNIT_KERJA' => $request->UNIT_KERJA,
+                'NAMA' => $request->NAMA,
+                'USER' => Auth::user()->BADGE,
+                'pdf_path' => $pdfPath,
+                'approval_status' => 'pending',
+            ]);
+
+            UserLog::logCreate(Auth::user()->BADGE, 'Surat Addendum', $nomorAddendum);
+
+            $admins = User::where('ROLE', 'admin')->get();
+            foreach ($admins as $admin) {
+                $this->notificationService->notifyPendingApproval(
+                    $admin->BADGE,
+                    'Surat Addendum',
+                    $nomorAddendum,
+                    Auth::user()->BADGE
+                );
+            }
+
+            return redirect()->route('user.addendum.index')
+                ->with('success', 'Surat Addendum berhasil dibuat dengan nomor: ' . $nomorAddendum);
+
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Gagal membuat Surat Addendum: ' . $e->getMessage());
+        }
+    }
+
+    public function show($id)
+    {
+        $document = SuratAddendum::findOrFail($id);
+        
+        if ($document->USER !== Auth::user()->BADGE) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        return view('user.addendum.show', compact('document'));
+    }
+
+    public function edit($id)
+    {
+        $document = SuratAddendum::findOrFail($id);
+        
+        if ($document->USER !== Auth::user()->BADGE) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        if ($document->isApproved()) {
+            return redirect()->route('user.addendum.index')
+                ->with('error', 'Dokumen yang sudah disetujui tidak dapat diubah');
+        }
+
+        return view('user.addendum.edit', compact('document'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $document = SuratAddendum::findOrFail($id);
+        
+        if ($document->USER !== Auth::user()->BADGE) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        if ($document->isApproved()) {
+            return redirect()->route('user.addendum.index')
+                ->with('error', 'Dokumen yang sudah disetujui tidak dapat diubah');
+        }
+
+        $request->validate([
+            'NOMOR_PERJANJIAN_ASAL' => 'required|string|max:100',
+            'PIHAK_PERTAMA' => 'required|string|max:200',
+            'PIHAK_LAIN' => 'required|string|max:200',
+            'PERIHAL' => 'required|string|max:500',
+            'PERUBAHAN' => 'required|string',
+            'PENANDATANGAN' => 'required|string|max:100',
+            'UNIT_KERJA' => 'required|string|max:100',
+            'NAMA' => 'required|string|max:100',
+            'pdf_file' => 'nullable|file|mimes:pdf|max:20480',
+        ]);
+
+        try {
+            $data = [
+                'NOMOR_PERJANJIAN_ASAL' => $request->NOMOR_PERJANJIAN_ASAL,
+                'PIHAK_PERTAMA' => $request->PIHAK_PERTAMA,
+                'PIHAK_LAIN' => $request->PIHAK_LAIN,
+                'PERIHAL' => $request->PERIHAL,
+                'PERUBAHAN' => $request->PERUBAHAN,
+                'PENANDATANGAN' => $request->PENANDATANGAN,
+                'UNIT_KERJA' => $request->UNIT_KERJA,
+                'NAMA' => $request->NAMA,
+            ];
+
+            if ($request->hasFile('pdf_file')) {
+                if ($document->pdf_path) {
+                    Storage::disk('minio')->delete($document->pdf_path);
+                }
+
+                $file = $request->file('pdf_file');
+                $fileName = 'ADD_' . str_replace(['/', ' '], '_', $document->NO) . '_' . time() . '.pdf';
+                $data['pdf_path'] = Storage::disk('minio')->putFileAs('surat-addendum', $file, $fileName);
+            }
+
+            $document->update($data);
+
+            UserLog::logUpdate(Auth::user()->BADGE, 'Surat Addendum', $document->NO);
+
+            return redirect()->route('user.addendum.index')
+                ->with('success', 'Surat Addendum berhasil diupdate');
+
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Gagal mengupdate Surat Addendum: ' . $e->getMessage());
+        }
+    }
+
+    public function destroy($id)
+    {
+        $document = SuratAddendum::findOrFail($id);
+        
+        if ($document->USER !== Auth::user()->BADGE) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        if ($document->isApproved()) {
+            return redirect()->route('user.addendum.index')
+                ->with('error', 'Dokumen yang sudah disetujui tidak dapat dihapus');
+        }
+
+        try {
+            $document->delete();
+
+            UserLog::logDelete(Auth::user()->BADGE, 'Surat Addendum', $document->NO);
+
+            return redirect()->route('user.addendum.index')
+                ->with('success', 'Surat Addendum berhasil dihapus');
+
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Gagal menghapus Surat Addendum: ' . $e->getMessage());
+        }
+    }
+
+    public function downloadPdf($id)
+    {
+        $document = SuratAddendum::findOrFail($id);
+        
+        if ($document->USER !== Auth::user()->BADGE) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        if (!$document->pdf_path || !Storage::disk('minio')->exists($document->pdf_path)) {
+            abort(404, 'File PDF tidak ditemukan');
+        }
+
+        return Storage::disk('minio')->download($document->pdf_path, 
+            'ADD_' . str_replace('/', '_', $document->NO) . '.pdf');
+    }
+
+    public function exportCsv()
+    {
+        $user = Auth::user();
+        $documents = SuratAddendum::byUser($user->BADGE)
+            ->orderBy('TANGGAL', 'desc')
+            ->orderBy('NOMOR_ADD', 'desc')
+            ->get()
+            ->map(function ($item, $index) {
+                $item->row_index = $index + 1;
+                return $item;
+            });
+
+        return $this->csvExportService->exportDocuments($documents, 'addendum');
+    }
+}
