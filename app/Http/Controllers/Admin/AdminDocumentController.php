@@ -45,7 +45,7 @@ class AdminDocumentController extends Controller
             $nomorSK = $this->documentNumberService->generateSKNumber($request->TANGGAL);
 
             $pdfFile = $request->file('pdf_file');
-            $pdfFileName = 'SK_' . str_replace(['/', ' '], ['_', '_'], $nomorSK) . '.pdf';
+            $pdfFileName = '' . str_replace(['/', ' '], ['_', '_'], $nomorSK) . '.pdf';
             $pdfPath = $pdfFile->storeAs('surat-keputusan', $pdfFileName, 'minio');
 
             SuratKeputusan::create([
@@ -99,12 +99,13 @@ class AdminDocumentController extends Controller
             $nomorSP = $this->documentNumberService->generateSPNumber($request->TANGGAL, $request->DIR);
 
             $pdfFile = $request->file('pdf_file');
-            $pdfFileName = 'SP_' . str_replace(['/', ' '], ['_', '_'], $nomorSP) . '.pdf';
+            $pdfFileName = '' . str_replace(['/', ' '], ['_', '_'], $nomorSP) . '.pdf';
             $pdfPath = $pdfFile->storeAs('surat-perjanjian', $pdfFileName, 'minio');
 
             SuratPerjanjian::create([
                 'NO' => $nomorSP,
                 'TANGGAL' => $request->TANGGAL,
+                'DIR' => $request->DIR,
                 'PIHAK_PERTAMA' => $request->PIHAK_PERTAMA,
                 'PIHAK_LAIN' => $request->PIHAK_LAIN,
                 'PERIHAL' => $request->PERIHAL,
@@ -157,7 +158,7 @@ class AdminDocumentController extends Controller
             $nomorAddendum = $this->documentNumberService->generateAddendumNumber($request->TANGGAL, $request->DIR);
 
             $pdfFile = $request->file('pdf_file');
-            $pdfFileName = 'ADD_' . str_replace(['/', ' '], ['_', '_'], $nomorAddendum) . '.pdf';
+            $pdfFileName = '' . str_replace(['/', ' '], ['_', '_'], $nomorAddendum) . '.pdf';
             $pdfPath = $pdfFile->storeAs('surat-addendum', $pdfFileName, 'minio');
 
             SuratAddendum::create([

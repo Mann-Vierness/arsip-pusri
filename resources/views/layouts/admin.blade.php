@@ -52,7 +52,6 @@
         .sidebar .brand img {
             width:140px;
             height:70px;
-            /* border-radius:50%;  <- hapus atau komentari */
             margin-bottom:0.5rem;
         }
 
@@ -147,6 +146,13 @@
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">
                     <i class="bi bi-speedometer2"></i> <span class="link-text">Dashboard</span>
+                </a>
+            </li>
+
+            <!-- Pengaturan Batas Input User -->
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.settings.input-limit') ? 'active' : '' }}" href="{{ route('admin.settings.input-limit') }}">
+                    <i class="bi bi-sliders"></i> <span class="link-text">Pengaturan Batas Input</span>
                 </a>
             </li>
 

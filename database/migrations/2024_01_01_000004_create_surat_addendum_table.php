@@ -12,6 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('NO', 100)->unique();
             $table->date('TANGGAL');
+            $table->string('DIR', 50)->nullable();
             $table->string('PIHAK_PERTAMA', 200);
             $table->string('PIHAK_LAIN', 200);
             $table->text('PERIHAL');

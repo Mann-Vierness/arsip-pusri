@@ -15,6 +15,25 @@ use Illuminate\Support\Facades\Storage;
 
 class ApprovalController extends Controller
 {
+    public function viewPdf($type, $id)
+    {
+        $model = $this->getModel($type);
+        $document = $model::findOrFail($id);
+
+        if (!$document->pdf_path || !\Storage::disk('minio')->exists($document->pdf_path)) {
+            abort(404, 'File PDF tidak ditemukan');
+        }
+
+        // Mendapatkan URL file PDF dari MinIO
+        $pdfUrl = \Storage::disk('minio')->url($document->pdf_path);
+
+        // Kirim ke view khusus preview PDF
+        return view('admin.approval.pdf_preview', [
+            'pdfUrl' => $pdfUrl,
+            'type' => $type,
+            'document' => $document,
+        ]);
+    }
     protected $notificationService;
 
     public function __construct(NotificationService $notificationService)
@@ -216,12 +235,19 @@ class ApprovalController extends Controller
         $document = $model::findOrFail($id);
 
         if (!$document->pdf_path || !Storage::disk('minio')->exists($document->pdf_path)) {
-            abort(404, 'File PDF tidak ditemukan');
+            return redirect()->back()->with('error', 'File PDF tidak ditemukan di server atau storage.');
+        }
+
+        // Ambil metadata file PDF via MinioHelper
+        $metadata = \App\Helpers\MinioHelper::getFileMetadata($document->pdf_path);
+        if (!$metadata || !$metadata['size']) {
+            return redirect()->back()->with('error', 'Gagal mengambil metadata file dari MinIO. File mungkin tidak ada, atau akses MinIO/policy bermasalah.');
         }
 
         $nomor = $this->getDocumentNumber($document, $type);
         $fileName = strtoupper($type) . '_' . str_replace('/', '_', $nomor) . '.pdf';
 
+        // Download file seperti biasa
         return Storage::disk('minio')->download($document->pdf_path, $fileName);
     }
 

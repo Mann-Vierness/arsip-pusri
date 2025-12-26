@@ -90,7 +90,7 @@ class SuratPerjanjianController extends Controller
             $pdfPath = null;
             if ($request->hasFile('pdf_file')) {
                 $file = $request->file('pdf_file');
-                $fileName = 'SP_' . str_replace(['/', ' '], '_', $nomorSP) . '_' . time() . '.pdf';
+                $fileName = '' . str_replace(['/', ' '], '_', $nomorSP) . '_' . time() . '.pdf';
                 $pdfPath = Storage::disk('minio')->putFileAs('surat-perjanjian', $file, $fileName);
             }
 
@@ -197,7 +197,7 @@ class SuratPerjanjianController extends Controller
                 }
 
                 $file = $request->file('pdf_file');
-                $fileName = 'SP_' . str_replace(['/', ' '], '_', $document->NO) . '_' . time() . '.pdf';
+                $fileName = '' . str_replace(['/', ' '], '_', $document->NO) . '_' . time() . '.pdf';
                 $data['pdf_path'] = Storage::disk('minio')->putFileAs('surat-perjanjian', $file, $fileName);
             }
 

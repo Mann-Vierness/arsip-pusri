@@ -90,7 +90,7 @@ class SuratAddendumController extends Controller
             $pdfPath = null;
             if ($request->hasFile('pdf_file')) {
                 $file = $request->file('pdf_file');
-                $fileName = 'ADD_' . str_replace(['/', ' '], '_', $nomorAddendum) . '_' . time() . '.pdf';
+                $fileName = '' . str_replace(['/', ' '], '_', $nomorAddendum) . '_' . time() . '.pdf';
                 $pdfPath = Storage::disk('minio')->putFileAs('surat-addendum', $file, $fileName);
             }
 
@@ -197,7 +197,7 @@ class SuratAddendumController extends Controller
                 }
 
                 $file = $request->file('pdf_file');
-                $fileName = 'ADD_' . str_replace(['/', ' '], '_', $document->NO) . '_' . time() . '.pdf';
+                $fileName = '' . str_replace(['/', ' '], '_', $document->NO) . '_' . time() . '.pdf';
                 $data['pdf_path'] = Storage::disk('minio')->putFileAs('surat-addendum', $file, $fileName);
             }
 

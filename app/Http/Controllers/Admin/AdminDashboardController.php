@@ -15,6 +15,52 @@ use Illuminate\Http\Request;
 
 class AdminDashboardController extends Controller
 {
+    /**
+     * Download SP PDF for admin panel
+     */
+    public function downloadSP($id)
+    {
+        $sp = SuratPerjanjian::findOrFail($id);
+        if (!$sp->pdf_path) {
+            return redirect()->back()->with('error', 'File PDF tidak ditemukan di database.');
+        }
+        if (!\Storage::disk('minio')->exists($sp->pdf_path)) {
+            return redirect()->back()->with('error', 'File PDF tidak ditemukan di storage MinIO.');
+        }
+        $metadata = \App\Helpers\MinioHelper::getFileMetadata($sp->pdf_path);
+        if (!$metadata || !$metadata['size']) {
+            return redirect()->back()->with('error', 'Gagal mengambil metadata file dari MinIO. File mungkin tidak ada, atau akses MinIO/policy bermasalah.');
+        }
+        $fileName = 'SP_' . str_replace('/', '_', $sp->NO) . '.pdf';
+        return \Storage::disk('minio')->download($sp->pdf_path, $fileName);
+    }
+    /**
+     * Show detail Surat Perjanjian for admin
+     */
+    public function showSP($id)
+    {
+        $sp = SuratPerjanjian::findOrFail($id);
+        return view('admin.documents.sp-detail', compact('sp'));
+    }
+    /**
+     * Download SK PDF for admin panel
+     */
+    public function downloadSK($id)
+    {
+        $sk = SuratKeputusan::findOrFail($id);
+        if (!$sk->pdf_path) {
+            return redirect()->back()->with('error', 'File PDF tidak ditemukan di database.');
+        }
+        if (!\Storage::disk('minio')->exists($sk->pdf_path)) {
+            return redirect()->back()->with('error', 'File PDF tidak ditemukan di storage MinIO.');
+        }
+        $metadata = \App\Helpers\MinioHelper::getFileMetadata($sk->pdf_path);
+        if (!$metadata || !$metadata['size']) {
+            return redirect()->back()->with('error', 'Gagal mengambil metadata file dari MinIO. File mungkin tidak ada, atau akses MinIO/policy bermasalah.');
+        }
+        $fileName = 'SK_' . str_replace('/', '_', $sk->NOMOR_SK) . '.pdf';
+        return \Storage::disk('minio')->download($sk->pdf_path, $fileName);
+    }
     protected $csvExportService;
 
     public function __construct(CsvExportService $csvExportService)

@@ -1,3 +1,4 @@
+
 <?php
 
 use Illuminate\Support\Facades\Route;
@@ -12,6 +13,12 @@ use App\Http\Controllers\User\SuratKeputusanController;
 use App\Http\Controllers\User\SuratPerjanjianController;
 use App\Http\Controllers\User\SuratAddendumController;
 use App\Http\Controllers\User\NotificationController as UserNotificationController;
+
+// Pengaturan Batas Input User (Admin)
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('settings/input-limit', [\App\Http\Controllers\Admin\SettingsController::class, 'inputLimitForm'])->name('settings.input-limit');
+    Route::post('settings/input-limit', [\App\Http\Controllers\Admin\SettingsController::class, 'updateInputLimit'])->name('settings.input-limit.update');
+});
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -68,7 +75,10 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
     
     // VIEW ALL DOCUMENTS
     Route::get('/documents/sk', [AdminDashboardController::class, 'allSK'])->name('admin.documents.sk');
+    Route::get('/documents/sk/{id}/download', [AdminDashboardController::class, 'downloadSK'])->name('admin.documents.sk.download');
     Route::get('/documents/sp', [AdminDashboardController::class, 'allSP'])->name('admin.documents.sp');
+    Route::get('/documents/sp/{id}/download', [AdminDashboardController::class, 'downloadSP'])->name('admin.documents.sp.download');
+    Route::get('/documents/sp/{id}', [AdminDashboardController::class, 'showSP'])->name('admin.documents.sp.show');
     Route::get('/documents/addendum', [AdminDashboardController::class, 'allAddendum'])->name('admin.documents.addendum');
     
     // EXPORT DOCUMENTS AS CSV
@@ -79,8 +89,8 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
     // ADMIN INPUT DOCUMENTS (AUTO-APPROVED) - FITUR BARU!
     Route::get('/documents/sk/create', [AdminDocumentController::class, 'createSK'])->name('admin.documents.sk.create');
     Route::post('/documents/sk/store', [AdminDocumentController::class, 'storeSK'])->name('admin.documents.sk.store');
-    Route::get('/documents/sp/create', [AdminDocumentController::class, 'createSP'])->name('admin.documents.sp.create');
-    Route::post('/documents/sp/store', [AdminDocumentController::class, 'storeSP'])->name('admin.documents.sp.store');
+    Route::get('/documents/surat-perjanjian/create', [AdminDocumentController::class, 'createSP'])->name('admin.documents.sp.create');
+    Route::post('/documents/surat-perjanjian/store', [AdminDocumentController::class, 'storeSP'])->name('admin.documents.sp.store');
     Route::get('/documents/addendum/create', [AdminDocumentController::class, 'createAddendum'])->name('admin.documents.addendum.create');
     Route::post('/documents/addendum/store', [AdminDocumentController::class, 'storeAddendum'])->name('admin.documents.addendum.store');
     

@@ -90,7 +90,7 @@ class SuratKeputusanController extends Controller
             $pdfPath = null;
             if ($request->hasFile('pdf_file')) {
                 $file = $request->file('pdf_file');
-                $fileName = 'SK_' . str_replace(['/', ' '], '_', $nomorSK) . '_' . time() . '.pdf';
+                $fileName = '' . str_replace(['/', ' '], '_', $nomorSK) . '_' . time() . '.pdf';
                 $pdfPath = Storage::disk('minio')->putFileAs('surat-keputusan', $file, $fileName);
             }
 
@@ -198,7 +198,7 @@ class SuratKeputusanController extends Controller
                 }
 
                 $file = $request->file('pdf_file');
-                $fileName = 'SK_' . str_replace(['/', ' '], '_', $document->NOMOR_SK) . '_' . time() . '.pdf';
+                $fileName = '' . str_replace(['/', ' '], '_', $document->NOMOR_SK) . '_' . time() . '.pdf';
                 $data['pdf_path'] = Storage::disk('minio')->putFileAs('surat-keputusan', $file, $fileName);
             }
 

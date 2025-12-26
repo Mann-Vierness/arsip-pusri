@@ -7,8 +7,9 @@
     <div class="card">
         <div class="card-header">
             <h5>Input Surat Perjanjian</h5>
+            <form method="POST" action="{{ route('admin.documents.sp.store') }}" enctype="multipart/form-data">
                 @csrf
-                   <div class="row">
+                <div class="row">
                     <div class="col-md-6 mb-3">
                         <label for="TANGGAL" class="form-label">Tanggal Surat Perjanjian</label>
                         <input type="date" class="form-control @error('TANGGAL') is-invalid @enderror" name="TANGGAL" value="{{ old('TANGGAL', date('Y-m-d')) }}" max="{{ date('Y-m-d') }}" required>
@@ -56,7 +57,7 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="NAMA" class="form-label">Nama Dokumen</label>
+                    <label for="NAMA" class="form-label">Nama Penginput</label>
                     <input type="text" class="form-control @error('NAMA') is-invalid @enderror" name="NAMA" value="{{ old('NAMA') }}" required>
                     @error('NAMA') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
