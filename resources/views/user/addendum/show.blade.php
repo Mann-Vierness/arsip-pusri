@@ -100,7 +100,7 @@
                     </script>
                     @endif
 
-                    @if($document->isPending())
+                    @if(!$document->isApproved())
                     <a href="{{ route('user.addendum.edit', $document->id) }}" class="btn btn-warning btn-sm w-100 mb-2">
                         <i class="bi bi-pencil"></i> Edit
                     </a>

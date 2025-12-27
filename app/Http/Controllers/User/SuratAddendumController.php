@@ -159,61 +159,77 @@ class SuratAddendumController extends Controller
     }
 
     public function update(Request $request, $id)
-    {
-        $document = SuratAddendum::findOrFail($id);
-        
-        if ($document->USER !== Auth::user()->BADGE) {
-            abort(403, 'Unauthorized action.');
-        }
+{
+    $document = SuratAddendum::findOrFail($id);
+    
+    if ($document->USER !== Auth::user()->BADGE) {
+        abort(403, 'Unauthorized action.');
+    }
 
-        if ($document->isApproved()) {
-            return redirect()->route('user.addendum.index')
-                ->with('error', 'Dokumen yang sudah disetujui tidak dapat diubah');
-        }
+    if ($document->isApproved()) {
+        return redirect()->route('user.addendum.index')
+            ->with('error', 'Dokumen yang sudah disetujui tidak dapat diubah');
+    }
 
-        $request->validate([
-            'PIHAK_PERTAMA' => 'required|string|max:200',
-            'PIHAK_LAIN' => 'required|string|max:200',
-            'PERIHAL' => 'required|string|max:500',
-            'PENANDATANGAN' => 'required|string|max:100',
-            'UNIT_KERJA' => 'required|string|max:100',
-            'NAMA' => 'required|string|max:100',
-            'pdf_file' => 'nullable|file|mimes:pdf|max:20480',
-        ]);
+    $request->validate([
+        'PIHAK_PERTAMA' => 'required|string|max:200',
+        'PIHAK_LAIN' => 'required|string|max:200',
+        'PERIHAL' => 'required|string|max:500',
+        'PENANDATANGAN' => 'required|string|max:100',
+        'UNIT_KERJA' => 'required|string|max:100',
+        'NAMA' => 'required|string|max:100',
+        'pdf_file' => 'nullable|file|mimes:pdf|max:20480',
+    ]);
 
-        try {
-            $data = [
-                'PIHAK_PERTAMA' => $request->PIHAK_PERTAMA,
-                'PIHAK_LAIN' => $request->PIHAK_LAIN,
-                'PERIHAL' => $request->PERIHAL,
-                'PENANDATANGAN' => $request->PENANDATANGAN,
-                'UNIT_KERJA' => $request->UNIT_KERJA,
-                'NAMA' => $request->NAMA,
-            ];
+    try {
+        $data = [
+            'PIHAK_PERTAMA' => $request->PIHAK_PERTAMA,
+            'PIHAK_LAIN' => $request->PIHAK_LAIN,
+            'PERIHAL' => $request->PERIHAL,
+            'PENANDATANGAN' => $request->PENANDATANGAN,
+            'UNIT_KERJA' => $request->UNIT_KERJA,
+            'NAMA' => $request->NAMA,
+            // RESET STATUS KE PENDING
+            'approval_status' => 'pending',
+            'approved_by' => null,
+            'approved_at' => null,
+            'rejection_reason' => null,
+        ];
 
-            if ($request->hasFile('pdf_file')) {
-                if ($document->pdf_path) {
-                    Storage::disk('minio')->delete($document->pdf_path);
-                }
-
-                $file = $request->file('pdf_file');
-                $fileName = '' . str_replace(['/', ' '], '_', $document->NO) . '_' . time() . '.pdf';
-                $data['pdf_path'] = Storage::disk('minio')->putFileAs('surat-addendum', $file, $fileName);
+        if ($request->hasFile('pdf_file')) {
+            if ($document->pdf_path) {
+                Storage::disk('minio')->delete($document->pdf_path);
             }
 
-            $document->update($data);
-
-            UserLog::logUpdate(Auth::user()->BADGE, 'Surat Addendum', $document->NO);
-
-            return redirect()->route('user.addendum.index')
-                ->with('success', 'Surat Addendum berhasil diupdate');
-
-        } catch (\Exception $e) {
-            return redirect()->back()
-                ->withInput()
-                ->with('error', 'Gagal mengupdate Surat Addendum: ' . $e->getMessage());
+            $file = $request->file('pdf_file');
+            $fileName = str_replace(['/', ' '], ['_', '_'], $document->NO) . '_' . time() . '.pdf';
+            $data['pdf_path'] = Storage::disk('minio')->putFileAs('surat-addendum', $file, $fileName);
         }
+
+        $document->update($data);
+
+        UserLog::logUpdate(Auth::user()->BADGE, 'Surat Addendum', $document->NO);
+
+        // Notifikasi ke admin bahwa ada dokumen yang disubmit ulang
+        $admins = User::where('ROLE', 'admin')->get();
+        foreach ($admins as $admin) {
+            $this->notificationService->notifyPendingApproval(
+                $admin->BADGE,
+                'Surat Addendum',
+                $document->NO,
+                Auth::user()->BADGE
+            );
+        }
+
+        return redirect()->route('user.addendum.index')
+            ->with('success', 'Surat Addendum berhasil diupdate dan dikirim untuk review ulang');
+
+    } catch (\Exception $e) {
+        return redirect()->back()
+            ->withInput()
+            ->with('error', 'Gagal mengupdate Surat Addendum: ' . $e->getMessage());
     }
+}
 
     public function destroy($id)
     {
