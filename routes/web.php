@@ -69,27 +69,32 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     // USER MANAGEMENT
     Route::resource('users', UserManagementController::class);
     
-    // VIEW ALL DOCUMENTS
+    // ===== SURAT KEPUTUSAN (SK) =====
+    // Route spesifik HARUS di atas route dengan parameter {id}
+    Route::get('/documents/sk/export/csv', [AdminDashboardController::class, 'exportCsvSK'])->name('documents.sk.export');
+    Route::get('/documents/sk/create', [AdminDocumentController::class, 'createSK'])->name('documents.sk.create');
+    Route::post('/documents/sk/store', [AdminDocumentController::class, 'storeSK'])->name('documents.sk.store');
     Route::get('/documents/sk', [AdminDashboardController::class, 'allSK'])->name('documents.sk');
     Route::get('/documents/sk/{id}/download', [AdminDashboardController::class, 'downloadSK'])->name('documents.sk.download');
+    Route::get('/documents/sk/{id}', [AdminDashboardController::class, 'showSK'])->name('documents.sk.show');
+    
+    // ===== SURAT PERJANJIAN (SP) =====
+    // Route spesifik HARUS di atas route dengan parameter {id}
+    Route::get('/documents/sp/export/csv', [AdminDashboardController::class, 'exportCsvSP'])->name('documents.sp.export');
+    Route::get('/documents/surat-perjanjian/create', [AdminDocumentController::class, 'createSP'])->name('documents.sp.create');
+    Route::post('/documents/surat-perjanjian/store', [AdminDocumentController::class, 'storeSP'])->name('documents.sp.store');
     Route::get('/documents/sp', [AdminDashboardController::class, 'allSP'])->name('documents.sp');
     Route::get('/documents/sp/{id}/download', [AdminDashboardController::class, 'downloadSP'])->name('documents.sp.download');
     Route::get('/documents/sp/{id}', [AdminDashboardController::class, 'showSP'])->name('documents.sp.show');
-    Route::get('/documents/addendum', [AdminDashboardController::class, 'allAddendum'])->name('documents.addendum');
-    Route::get('/documents/sk/{id}', [AdminDashboardController::class, 'showSK'])->name('documents.sk.show');
-    // EXPORT DOCUMENTS AS CSV
-    Route::get('/documents/sk/export/csv', [AdminDashboardController::class, 'exportCsvSK'])->name('documents.sk.export');
-    Route::get('/documents/sp/export/csv', [AdminDashboardController::class, 'exportCsvSP'])->name('documents.sp.export');
-    Route::get('/documents/addendum/export/csv', [AdminDashboardController::class, 'exportCsvAddendum'])->name('documents.addendum.export');
     
-    // ADMIN INPUT DOCUMENTS (AUTO-APPROVED)
-    Route::get('/documents/sk/create', [AdminDocumentController::class, 'createSK'])->name('documents.sk.create');
-    Route::post('/documents/sk/store', [AdminDocumentController::class, 'storeSK'])->name('documents.sk.store');
-    Route::get('/documents/surat-perjanjian/create', [AdminDocumentController::class, 'createSP'])->name('documents.sp.create');
-    Route::post('/documents/surat-perjanjian/store', [AdminDocumentController::class, 'storeSP'])->name('documents.sp.store');
+    // ===== SURAT ADDENDUM =====
+    // Route spesifik HARUS di atas route dengan parameter {id}
+    Route::get('/documents/addendum/export/csv', [AdminDashboardController::class, 'exportCsvAddendum'])->name('documents.addendum.export');
     Route::get('/documents/addendum/create', [AdminDocumentController::class, 'createAddendum'])->name('documents.addendum.create');
     Route::post('/documents/addendum/store', [AdminDocumentController::class, 'storeAddendum'])->name('documents.addendum.store');
+    Route::get('/documents/addendum', [AdminDashboardController::class, 'allAddendum'])->name('documents.addendum');
     Route::get('/documents/addendum/{id}', [AdminDashboardController::class, 'showAddendum'])->name('documents.addendum.show');
+    
     // LOGIN LOGS
     Route::get('/logs/login', [LoginLogController::class, 'index'])->name('logs.login');
 });

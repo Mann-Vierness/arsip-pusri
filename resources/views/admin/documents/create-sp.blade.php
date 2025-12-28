@@ -41,33 +41,37 @@
                 <div class="row">
                     <!-- Tanggal -->
                     <div class="col-md-6 mb-3">
-                        <label for="TANGGAL" class="form-label">Tanggal <span class="text-danger">*</span></label>
+                        <label for="TANGGAL" class="form-label">Tanggal SP <span class="text-danger">*</span></label>
                         <input type="date" class="form-control @error('TANGGAL') is-invalid @enderror" 
-                               id="TANGGAL" name="TANGGAL" value="{{ old('TANGGAL') }}" required>
+                               id="TANGGAL" name="TANGGAL" value="{{ old('TANGGAL', date('Y-m-d')) }}" 
+                               max="{{ date('Y-m-d') }}" required>
                         @error('TANGGAL')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
+                        <small class="text-muted">Bisa backdate, maksimal hari ini untuk NON DIR</small>
                     </div>
 
                     <!-- DIR -->
                     <div class="col-md-6 mb-3">
-                        <label for="DIR" class="form-label">DIR <span class="text-danger">*</span></label>
+                        <label for="DIR" class="form-label">Jenis SP <span class="text-danger">*</span></label>
                         <select class="form-select @error('DIR') is-invalid @enderror" id="DIR" name="DIR" required>
-                            <option value="">-- Pilih DIR --</option>
-                            <option value="PKS" {{ old('DIR') == 'PKS' ? 'selected' : '' }}>PKS</option>
-                            <option value="SP" {{ old('DIR') == 'SP' ? 'selected' : '' }}>SP</option>
+                            <option value="">-- Pilih Jenis --</option>
+                            <option value="DIR" {{ old('DIR') == 'DIR' ? 'selected' : '' }}>DIR</option>
+                            <option value="NON DIR" {{ old('DIR') == 'NON DIR' ? 'selected' : '' }}>NON DIR</option>
                         </select>
                         @error('DIR')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
-                        <small class="text-muted">Digunakan untuk generate nomor SP</small>
+                        <small class="text-muted">DIR: bebas tanggal | NON DIR: maksimal hari ini</small>
                     </div>
+                </div>
 
+                <div class="row">
                     <!-- Pihak Pertama -->
                     <div class="col-md-6 mb-3">
                         <label for="PIHAK_PERTAMA" class="form-label">Pihak Pertama <span class="text-danger">*</span></label>
                         <input type="text" class="form-control @error('PIHAK_PERTAMA') is-invalid @enderror" 
-                               id="PIHAK_PERTAMA" name="PIHAK_PERTAMA" value="{{ old('PIHAK_PERTAMA', 'PT Pupuk Sriwidjaja Palembang') }}" required>
+                               id="PIHAK_PERTAMA" name="PIHAK_PERTAMA" value="{{ old('PIHAK_PERTAMA') }}" required>
                         @error('PIHAK_PERTAMA')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -82,17 +86,19 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
+                </div>
 
-                    <!-- Perihal -->
-                    <div class="col-md-12 mb-3">
-                        <label for="PERIHAL" class="form-label">Perihal <span class="text-danger">*</span></label>
-                        <textarea class="form-control @error('PERIHAL') is-invalid @enderror" 
-                                  id="PERIHAL" name="PERIHAL" rows="3" required>{{ old('PERIHAL') }}</textarea>
-                        @error('PERIHAL')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
+                <!-- Perihal -->
+                <div class="mb-3">
+                    <label for="PERIHAL" class="form-label">Perihal <span class="text-danger">*</span></label>
+                    <textarea class="form-control @error('PERIHAL') is-invalid @enderror" 
+                              id="PERIHAL" name="PERIHAL" rows="3" required>{{ old('PERIHAL') }}</textarea>
+                    @error('PERIHAL')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
 
+                <div class="row">
                     <!-- Penandatangan -->
                     <div class="col-md-6 mb-3">
                         <label for="PENANDATANGAN" class="form-label">Penandatangan <span class="text-danger">*</span></label>
@@ -112,32 +118,38 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
+                </div>
 
-                    <!-- Nama -->
-                    <div class="col-md-6 mb-3">
-                        <label for="NAMA" class="form-label">Nama Pembuat <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control @error('NAMA') is-invalid @enderror" 
-                               id="NAMA" name="NAMA" value="{{ old('NAMA', auth()->user()->Nama) }}" required>
-                        @error('NAMA')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
+                <!-- Nama -->
+                <div class="mb-3">
+                    <label for="NAMA" class="form-label">Nama Pembuat <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control @error('NAMA') is-invalid @enderror" 
+                           id="NAMA" name="NAMA" value="{{ old('NAMA', auth()->user()->Nama) }}" required>
+                    @error('NAMA')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
 
-                    <!-- Upload PDF -->
-                    <div class="col-md-6 mb-3">
-                        <label for="pdf_file" class="form-label">Upload File PDF <span class="text-danger">*</span></label>
-                        <input type="file" class="form-control @error('pdf_file') is-invalid @enderror" 
-                               id="pdf_file" name="pdf_file" accept=".pdf" required>
-                        @error('pdf_file')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                        <small class="text-muted">Maksimal 10MB, format PDF</small>
-                    </div>
+                <!-- Upload PDF -->
+                <div class="mb-3">
+                    <label for="pdf_file" class="form-label">Upload File PDF <span class="text-danger">*</span></label>
+                    <input type="file" class="form-control @error('pdf_file') is-invalid @enderror" 
+                           id="pdf_file" name="pdf_file" accept=".pdf" required>
+                    @error('pdf_file')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                    <small class="text-muted">Maksimal 20MB, format PDF</small>
                 </div>
 
                 <div class="alert alert-info">
                     <i class="bi bi-info-circle"></i> 
-                    <strong>Informasi:</strong> Dokumen yang dibuat oleh admin akan otomatis ter-approve dan nomor SP akan digenerate otomatis berdasarkan DIR dan tanggal.
+                    <strong>Informasi:</strong>
+                    <ul class="mb-0 mt-2">
+                        <li><strong>DIR:</strong> Nomor format <code>XXX/SP/DIR/{{ date('Y') }}</code>, tanggal bebas (bisa backdate)</li>
+                        <li><strong>NON DIR:</strong> Nomor format <code>XXX/SP/{{ date('Y') }}</code>, tanggal maksimal hari ini</li>
+                        <li>Nomor SP akan digenerate otomatis sesuai jenis yang dipilih</li>
+                        <li>Dokumen yang dibuat admin akan otomatis ter-approve</li>
+                    </ul>
                 </div>
 
                 <div class="d-flex gap-2">
@@ -162,6 +174,20 @@ document.getElementById('pdf_file').addEventListener('change', function(e) {
         if (label && label.classList.contains('custom-file-label')) {
             label.textContent = fileName;
         }
+    }
+});
+
+// Validasi tanggal berdasarkan jenis DIR
+document.getElementById('DIR').addEventListener('change', function() {
+    const tanggalInput = document.getElementById('TANGGAL');
+    const today = '{{ date("Y-m-d") }}';
+    
+    if (this.value === 'NON DIR') {
+        tanggalInput.setAttribute('max', today);
+        tanggalInput.nextElementSibling.textContent = 'Maksimal hari ini untuk NON DIR';
+    } else if (this.value === 'DIR') {
+        tanggalInput.removeAttribute('max');
+        tanggalInput.nextElementSibling.textContent = 'Bebas tanggal untuk DIR (bisa backdate atau future date)';
     }
 });
 </script>
