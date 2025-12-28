@@ -34,6 +34,7 @@ class AdminDashboardController extends Controller
         $fileName = 'SP_' . str_replace('/', '_', $sp->NO) . '.pdf';
         return \Storage::disk('minio')->download($sp->pdf_path, $fileName);
     }
+    
     /**
      * Show detail Surat Perjanjian for admin
      */
@@ -42,6 +43,7 @@ class AdminDashboardController extends Controller
         $sp = SuratPerjanjian::findOrFail($id);
         return view('admin.documents.sp-detail', compact('sp'));
     }
+    
     /**
      * Download SK PDF for admin panel
      */
@@ -61,6 +63,25 @@ class AdminDashboardController extends Controller
         $fileName = 'SK_' . str_replace('/', '_', $sk->NOMOR_SK) . '.pdf';
         return \Storage::disk('minio')->download($sk->pdf_path, $fileName);
     }
+    
+    /**
+     * Show detail Surat Keputusan for admin
+     */
+    public function showSK($id)
+    {
+        $sk = SuratKeputusan::findOrFail($id);
+        return view('admin.documents.sk-detail', compact('sk'));
+    }
+    
+    /**
+     * Show detail Addendum for admin
+     */
+    public function showAddendum($id)
+    {
+        $addendum = SuratAddendum::findOrFail($id);
+        return view('admin.documents.addendum-detail', compact('addendum'));
+    }
+    
     protected $csvExportService;
 
     public function __construct(CsvExportService $csvExportService)

@@ -32,9 +32,19 @@
                             <th>Departemen</th>
                             <td>: {{ $user->Departemen }}</td>
                         </tr>
-                        <tr>
+                         <tr>
                             <th>Role</th>
-                            <td>: <span class="badge bg-info">{{ strtoupper($user->ROLE) }}</span></td>
+                            <td>: 
+                                @if($user->ROLE == 'admin')
+                                    <span class="badge bg-danger">
+                                        <i class="bi bi-shield-check"></i> Admin
+                                    </span>
+                                @else
+                                    <span class="badge bg-primary">
+                                        <i class="bi bi-person"></i> User
+                                    </span>
+                                @endif
+                            </td>
                         </tr>
                         <tr>
                             <th>Dibuat</th>

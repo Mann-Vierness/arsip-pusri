@@ -19,6 +19,7 @@
                             <th>Badge</th>
                             <th>Nama</th>
                             <th>Departemen</th>
+                            <th>Role</th> <!-- KOLOM BARU -->
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -29,6 +30,17 @@
                             <td>{{ $user->Nama }}</td>
                             <td>{{ $user->Departemen }}</td>
                             <td>
+                                @if($user->ROLE == 'admin')
+                                    <span class="badge bg-danger">
+                                        <i class="bi bi-shield-check"></i> Admin
+                                    </span>
+                                @else
+                                    <span class="badge bg-primary">
+                                        <i class="bi bi-person"></i> User
+                                    </span>
+                                @endif
+                            </td>
+                            <td>
                                 <div class="btn-group btn-group-sm">
                                     <a href="{{ route('admin.users.show', $user->BADGE) }}" class="btn btn-info">
                                         <i class="bi bi-eye"></i>
@@ -36,7 +48,8 @@
                                     <a href="{{ route('admin.users.edit', $user->BADGE) }}" class="btn btn-warning">
                                         <i class="bi bi-pencil"></i>
                                     </a>
-                                    <form action="{{ route('admin.users.destroy', $user->BADGE) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus user ini?')">
+                                    <form action="{{ route('admin.users.destroy', $user->BADGE) }}" method="POST" 
+                                          class="d-inline" onsubmit="return confirm('Yakin ingin menghapus user ini?')">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-danger">

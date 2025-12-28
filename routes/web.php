@@ -76,7 +76,7 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     Route::get('/documents/sp/{id}/download', [AdminDashboardController::class, 'downloadSP'])->name('documents.sp.download');
     Route::get('/documents/sp/{id}', [AdminDashboardController::class, 'showSP'])->name('documents.sp.show');
     Route::get('/documents/addendum', [AdminDashboardController::class, 'allAddendum'])->name('documents.addendum');
-    
+    Route::get('/documents/sk/{id}', [AdminDashboardController::class, 'showSK'])->name('documents.sk.show');
     // EXPORT DOCUMENTS AS CSV
     Route::get('/documents/sk/export/csv', [AdminDashboardController::class, 'exportCsvSK'])->name('documents.sk.export');
     Route::get('/documents/sp/export/csv', [AdminDashboardController::class, 'exportCsvSP'])->name('documents.sp.export');
@@ -89,7 +89,7 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     Route::post('/documents/surat-perjanjian/store', [AdminDocumentController::class, 'storeSP'])->name('documents.sp.store');
     Route::get('/documents/addendum/create', [AdminDocumentController::class, 'createAddendum'])->name('documents.addendum.create');
     Route::post('/documents/addendum/store', [AdminDocumentController::class, 'storeAddendum'])->name('documents.addendum.store');
-    
+    Route::get('/documents/addendum/{id}', [AdminDashboardController::class, 'showAddendum'])->name('documents.addendum.show');
     // LOGIN LOGS
     Route::get('/logs/login', [LoginLogController::class, 'index'])->name('logs.login');
 });

@@ -7,6 +7,8 @@
     <div class="card">
         <div class="card-header">
             <h5>Input Addendum</h5>
+        </div>
+        <div class="card-body">
             <form method="POST" action="{{ route('admin.documents.addendum.store') }}" enctype="multipart/form-data">
                 @csrf
                 <div class="row">
@@ -44,7 +46,6 @@
                     @error('PERIHAL') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
 
-
                 <div class="mb-3">
                     <label for="PENANDATANGAN" class="form-label">Penandatangan</label>
                     <input type="text" class="form-control @error('PENANDATANGAN') is-invalid @enderror" name="PENANDATANGAN" value="{{ old('PENANDATANGAN') }}" required>
@@ -67,9 +68,17 @@
                     <label for="pdf_file" class="form-label">File PDF</label>
                     <input type="file" class="form-control @error('pdf_file') is-invalid @enderror" name="pdf_file" accept="application/pdf" required>
                     @error('pdf_file') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    <small class="text-muted">Maksimal 20MB</small>
                 </div>
 
-                <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Simpan Addendum</button>
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> <strong>Catatan:</strong> Addendum yang dibuat oleh admin akan langsung di-approve.
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Simpan Addendum</button>
+                    <a href="{{ route('admin.documents.addendum') }}" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Kembali</a>
+                </div>
             </form>
         </div>
     </div>

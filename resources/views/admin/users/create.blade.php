@@ -16,27 +16,49 @@
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Nomor Badge <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control @error('badge') is-invalid @enderror" name="badge" value="{{ old('badge') }}" required>
+                        <input type="text" class="form-control @error('badge') is-invalid @enderror" 
+                               name="badge" value="{{ old('badge') }}" required>
                         @error('badge')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Nama Lengkap <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control @error('Nama') is-invalid @enderror" name="Nama" value="{{ old('Nama') }}" required>
+                        <input type="text" class="form-control @error('Nama') is-invalid @enderror" 
+                               name="Nama" value="{{ old('Nama') }}" required>
                         @error('Nama')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                 </div>
+
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Password <span class="text-danger">*</span></label>
-                        <input type="password" class="form-control @error('password') is-invalid @enderror" name="password" required>
+                        <input type="password" class="form-control @error('password') is-invalid @enderror" 
+                               name="password" required>
                         @error('password')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Departemen <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control @error('departemen') is-invalid @enderror" name="departemen" value="{{ old('departemen') }}" required>
+                        <input type="text" class="form-control @error('departemen') is-invalid @enderror" 
+                               name="departemen" value="{{ old('departemen') }}" required>
                         @error('departemen')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                 </div>
+
+                <!-- FITUR BARU: Pilihan Role -->
+                <div class="mb-3">
+                    <label class="form-label">Role <span class="text-danger">*</span></label>
+                    <select class="form-select @error('role') is-invalid @enderror" name="role" required>
+                        <option value="">-- Pilih Role --</option>
+                        <option value="user" {{ old('role') == 'user' ? 'selected' : '' }}>User (Regular)</option>
+                        <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
+                    </select>
+                    @error('role')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    <small class="text-muted">
+                        <i class="bi bi-info-circle"></i> 
+                        <strong>User:</strong> Dapat membuat & mengelola dokumen sendiri. 
+                        <strong>Admin:</strong> Dapat approve/reject dokumen & kelola semua user.
+                    </small>
+                </div>
+
                 <div class="d-flex gap-2 mt-3">
                     <button type="submit" class="btn btn-primary">
                         <i class="bi bi-save"></i> Simpan

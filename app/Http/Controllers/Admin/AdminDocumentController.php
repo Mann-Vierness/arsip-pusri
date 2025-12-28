@@ -141,12 +141,10 @@ class AdminDocumentController extends Controller
     {
         $request->validate([
             'TANGGAL' => 'required|date',
-            'DIR' => 'nullable|string|max:50',
-            'NOMOR_PERJANJIAN_ASAL' => 'required|string|max:100',
+            'DIR' => 'required|string|in:DIR,NON DIR',
             'PIHAK_PERTAMA' => 'required|string|max:200',
             'PIHAK_LAIN' => 'required|string|max:200',
             'PERIHAL' => 'required|string|max:500',
-            'PERUBAHAN' => 'required|string',
             'PENANDATANGAN' => 'required|string|max:100',
             'UNIT_KERJA' => 'required|string|max:100',
             'NAMA' => 'required|string|max:100',
@@ -164,11 +162,9 @@ class AdminDocumentController extends Controller
             SuratAddendum::create([
                 'NO' => $nomorAddendum,
                 'TANGGAL' => $request->TANGGAL,
-                'NOMOR_PERJANJIAN_ASAL' => $request->NOMOR_PERJANJIAN_ASAL,
                 'PIHAK_PERTAMA' => $request->PIHAK_PERTAMA,
                 'PIHAK_LAIN' => $request->PIHAK_LAIN,
                 'PERIHAL' => $request->PERIHAL,
-                'PERUBAHAN' => $request->PERUBAHAN,
                 'PENANDATANGAN' => $request->PENANDATANGAN,
                 'UNIT_KERJA' => $request->UNIT_KERJA,
                 'NAMA' => $request->NAMA,
