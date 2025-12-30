@@ -95,6 +95,8 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     Route::get('/documents/addendum', [AdminDashboardController::class, 'allAddendum'])->name('documents.addendum');
     Route::get('/documents/addendum/{id}', [AdminDashboardController::class, 'showAddendum'])->name('documents.addendum.show');
     
+    // ===== REPORTS =====
+    Route::get('/reports/documents', [\App\Http\Controllers\Admin\ReportController::class, 'index'])->name('reports.documents');
     // LOGIN LOGS
     Route::get('/logs/login', [LoginLogController::class, 'index'])->name('logs.login');
 });

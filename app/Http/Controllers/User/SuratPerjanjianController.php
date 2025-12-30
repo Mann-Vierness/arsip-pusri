@@ -279,7 +279,7 @@ class SuratPerjanjianController extends Controller
         $user = Auth::user();
         $documents = SuratPerjanjian::byUser($user->BADGE)
             ->orderBy('TANGGAL', 'desc')
-            ->orderBy('NOMOR_SP', 'desc')
+            ->orderBy('NO', 'desc')
             ->get()
             ->map(function ($item, $index) {
                 $item->row_index = $index + 1;

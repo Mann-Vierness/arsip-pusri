@@ -230,6 +230,11 @@
                 </a>
             </li>
             <li class="nav-item">
+             <a class="nav-link {{ request()->routeIs('admin.reports.*') ? 'active' : '' }}" href="{{ route('admin.reports.documents') }}">
+                 <i class="bi bi-graph-up"></i> <span class="link-text">Laporan Dokumen</span>
+            </a>
+        </li>
+            <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('admin.logs.*') ? 'active' : '' }}" href="{{ route('admin.logs.login') }}">
                     <i class="bi bi-clock-history"></i> <span class="link-text">Histori Login</span>
                 </a>

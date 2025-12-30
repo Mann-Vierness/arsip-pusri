@@ -279,7 +279,7 @@ class SuratAddendumController extends Controller
         $user = Auth::user();
         $documents = SuratAddendum::byUser($user->BADGE)
             ->orderBy('TANGGAL', 'desc')
-            ->orderBy('NOMOR_ADD', 'desc')
+            ->orderBy('NO', 'desc')
             ->get()
             ->map(function ($item, $index) {
                 $item->row_index = $index + 1;

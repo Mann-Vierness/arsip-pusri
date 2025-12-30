@@ -91,67 +91,67 @@ class DocumentNumberService
      * ===================================================== */
 
     private function generateChronologicalNumber(
-        string $modelClass,
-        string $type,
-        $tanggal,
-        $dir
-    ) {
-        $tanggalObj = Carbon::parse($tanggal);
-        $tahun = $tanggalObj->format('Y');
-        $isDIR = ($dir === 'DIR');
+    string $modelClass,
+    string $type,
+    $tanggal,
+    $dir
+) {
+    $tanggalObj = Carbon::parse($tanggal);
+    $tahun = $tanggalObj->format('Y');
+    $isDIR = ($dir === 'DIR');
+    $isToday = $tanggalObj->isToday();
 
-        /*
-         * Ambil 1 data TERAKHIR secara kronologis
-         * sebelum / sama dengan tanggal input
-         */
-        $last = $modelClass::withTrashed()
-            ->whereYear('TANGGAL', $tahun)
-            ->where('TANGGAL', '<=', $tanggalObj->toDateString())
-            ->orderBy('TANGGAL', 'desc')
-            ->orderByRaw("
-                CAST(LEFT(NO, 3) AS UNSIGNED) DESC,
-                LENGTH(SUBSTRING_INDEX(NO, '/', 1)) DESC,
-                SUBSTRING_INDEX(NO, '/', 1) DESC
-            ")
-            ->lockForUpdate()
-            ->first();
+    // Ambil data terakhir <= tanggal input
+    $last = $modelClass::withTrashed()
+        ->whereYear('TANGGAL', $tahun)
+        ->where('TANGGAL', '<=', $tanggalObj->toDateString())
+        ->orderBy('TANGGAL', 'desc')
+        ->orderByRaw("
+            CAST(LEFT(NO, 3) AS UNSIGNED) DESC,
+            LENGTH(SUBSTRING_INDEX(NO, '/', 1)) DESC,
+            SUBSTRING_INDEX(NO, '/', 1) DESC
+        ")
+        ->lockForUpdate()
+        ->first();
 
+    // =============================
+    // JIKA HARI INI → TANPA SUFFIX
+    // =============================
+    if ($isToday) {
         if (!$last) {
-            // Belum ada data sama sekali
-            $number = '001';
-            $suffix = '';
+            $number = 1;
         } else {
-            preg_match('/(\d{3})([A-Z]*)/', $last->NO, $m);
-            $number = $m[1];
-            $suffix = $m[2] ?? '';
+            preg_match('/(\d{3})/', $last->NO, $m);
+            $number = (int)$m[1] + 1;
         }
 
-        /*
-         * Naikkan suffix
-         * 001  -> 001A
-         * 001A -> 001B
-         * 001Z -> 001AA
-         */
-        if ($suffix === '') {
-            $suffix = 'A';
-        } else {
-            $suffix = $this->nextSuffix($suffix);
-        }
-
-        /*
-         * Jika suffix overflow penuh kembali ke A
-         * maka angka utama naik
-         */
-        if ($suffix === 'A' && $last) {
-            $number = str_pad(((int)$number) + 1, 3, '0', STR_PAD_LEFT);
-        }
-
-        $final = $number . $suffix;
+        $nomorStr = str_pad($number, 3, '0', STR_PAD_LEFT);
 
         return $isDIR
-            ? "{$final}/{$type}/DIR/{$tahun}"
-            : "{$final}/{$type}/{$tahun}";
+            ? "{$nomorStr}/{$type}/DIR/{$tahun}"
+            : "{$nomorStr}/{$type}/{$tahun}";
     }
+
+    // =============================
+    // BACKDATE → PAKAI SUFFIX
+    // =============================
+    if (!$last) {
+        $number = '001';
+        $suffix = 'A';
+    } else {
+        preg_match('/(\d{3})([A-Z]*)/', $last->NO, $m);
+        $number = $m[1];
+        $suffix = $m[2] ?? '';
+        $suffix = $suffix === '' ? 'A' : $this->nextSuffix($suffix);
+    }
+
+    $final = $number . $suffix;
+
+    return $isDIR
+        ? "{$final}/{$type}/DIR/{$tahun}"
+        : "{$final}/{$type}/{$tahun}";
+}
+
 
     /* =====================================================
      * =============== SUFFIX ENGINE FINAL =================
